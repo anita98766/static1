@@ -26,10 +26,21 @@ jobs:
         aws-region: us-east-1   # Change the region if necessary
     - name: Create S3 Bucket
       run: |
-          aws s3 mb s3://myfirstbucket509123001245 --region us-east-1 
+          aws s3 mb s3://myfirstbucket5091230012456 --region us-east-1 
         
     # Step 3: Sync index.html file to S3 bucket
     - name: Sync index.html to S3
       run: |
-          aws s3 cp index.html s3://myfirstbucket509123001245/index.html
+          aws s3 cp index.html s3://myfirstbucket5091230012456/index.html
+    
+    -  name: Sync files to S3
+       run: |
+             aws s3 sync ./ s3://myfirstbucket5091230012456 --exclude ".git/*" --acl private
+   
+    # Step 4: Invalidate CloudFront cache to reflect new changes
+    - name: Invalidate CloudFront cache
+      run: |
+        aws cloudfront create-invalidation --distribution-id E1A2B3C4D5F6G7 --paths "/*"
+
+      
 
