@@ -15,7 +15,7 @@ jobs:
     steps:
     # Step 1: Checkout the repository
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v3myfirstbucket50912300124
 
     # Step 2: Configure AWS credentials
     - name: Configure AWS credentials
@@ -29,4 +29,4 @@ jobs:
     - name: Sync index.html to S3
       
       run: |
-        aws s3 cp index.html s3://myfirstbucket5aa/index.html
+        aws s3 cp index.html s3://myfirstbucket50912300124/index.html
