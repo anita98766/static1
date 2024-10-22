@@ -25,8 +25,8 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1   # Change the region if necessary
 
-    # Step 3: Sync index.yaml file to S3 bucket
+    # Step 3: Sync index.html file to S3 bucket
     - name: Sync index.html to S3
       run: |
-        aws s3 cp index.yaml s3:///index.html
+        aws s3 cp index.yaml s3://myfirstbucket50912300124/index.html
 
