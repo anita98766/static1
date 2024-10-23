@@ -1,2 +1,3 @@
-instance_type = "t2.medium"
-region        = "ap-south-1"
+bucket_name        = "myfirstbucket-prod"
+cloudfront_comment = "CloudFront distribution for production environment"
+environment        = "prod"
