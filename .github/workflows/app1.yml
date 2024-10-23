@@ -29,14 +29,14 @@ jobs:
     - name: Terraform Init
       run: terraform init
 
-    - name: Select Terraform Workspace
+    - name: Select or Create Terraform Workspace
       run: |
         if [ "${{ github.ref }}" == "refs/heads/feature" ]; then
-          terraform workspace select feature
+          terraform workspace select feature || terraform workspace new feature
         elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
-          terraform workspace select stage
+          terraform workspace select stage || terraform workspace new stage
         elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
-          terraform workspace select dev
+          terraform workspace select dev || terraform workspace new dev
         fi
 
     - name: Terraform Plan
@@ -45,6 +45,7 @@ jobs:
     - name: Terraform Apply
       if: github.ref == 'refs/heads/feature' || github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/dev'
       run: terraform apply -auto-approve -var-file="${{ github.ref_name }}.tfvars"
+
 
     
       
