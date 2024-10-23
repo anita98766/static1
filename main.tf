@@ -1,22 +1,17 @@
 provider "aws" {
-  region = "ap-south-1"
+  region = var.region
 }
 
 resource "aws_s3_bucket" "website_bucket" {
-  bucket = "myfirstbucket11230"
+  bucket = var.bucket_name
 }
 
-resource "aws_s3_object" "website_bucket" {
+resource "aws_s3_object" "website_object" {
   bucket       = aws_s3_bucket.website_bucket.id
   key          = "index.html"
   source       = "index.html"
   content_type = "text/html"
 }
-
-#resource "aws_s3_account_public_access_block" "website_bucket" {
-  #block_public_acls   = false
-  #block_public_policy = false
-#}
 
 resource "aws_s3_bucket_public_access_block" "website_bucket" {
   bucket = aws_s3_bucket.website_bucket.id
@@ -26,34 +21,11 @@ resource "aws_s3_bucket_public_access_block" "website_bucket" {
   restrict_public_buckets = true
 }
 
-#resource "aws_s3_bucket_policy" "website_bucket" {
-  #Policy = jsonencode({
-    #Version = "2012-10-17"
-    #Statement = [
-      #{
-        #Sid = "PublicReadGetObject"
-        #Effect = "Allow"
-        #Principal = "*"
-        #Action = [
-          #"s3:GetObject",
-          #"s3:ListBucket",
-        #]
-        #Resource = [
-          #"${aws_s3_bucket.website_bucket.arn}",
-          #"${aws_s3_bucket.website_bucket.arn}/*"
-        #]
-      #}
-    #]
-  #})
-#}
-
-
-
 resource "aws_cloudfront_distribution" "cdn_static_site" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  comment             = "my cloudfront in front of the s3 bucket"
+  comment             = var.cloudfront_comment
 
   origin {
     domain_name              = aws_s3_bucket.website_bucket.bucket_regional_domain_name
@@ -87,13 +59,13 @@ resource "aws_cloudfront_distribution" "cdn_static_site" {
   }
 
   viewer_certificate {
-    cloudfront_default_certificate = true 
+    cloudfront_default_certificate = true
   }
 }
 
 resource "aws_cloudfront_origin_access_control" "default" {
-  name                              = "example8"
-  description                       = "description of OAC"
+  name                              = "example-${var.environment}"
+  description                       = "Origin Access Control for ${var.environment} environment"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
