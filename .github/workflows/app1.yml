@@ -30,17 +30,16 @@ jobs:
       run: terraform init
 
     - name: Select or Create Terraform Workspace
+      if: github.ref == 'refs/heads/dev'
       run: |
-         [ "${{ github.ref }}" == "refs/heads/dev" ]; 
           terraform workspace select dev || terraform workspace new dev
 
     - name: Terraform Plan
+      if: github.ref == 'refs/heads/dev'
       run: |
-          [ "${{ github.ref }}" == "refs/heads/dev" ]; then
           terraform plan -var-file="dev.tfvars"
 
     - name: Terraform Apply
-      if:    github.ref == 'refs/heads/dev'
+      if: github.ref == 'refs/heads/dev'
       run: |
-          [ "${{ github.ref }}" == "refs/heads/dev" ]; then
           terraform apply -auto-approve -var-file="dev.tfvars"
