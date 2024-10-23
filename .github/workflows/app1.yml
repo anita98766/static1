@@ -5,7 +5,7 @@ on:
     branches:
       - main      # Trigger for production
       - feature
-      - prod      # Trigger for staging
+      - stage     # Trigger for staging
       - dev       # Trigger for development
 
 jobs:
@@ -34,7 +34,9 @@ jobs:
       run: |
         if [ "${{ github.ref }}" == "refs/heads/main" ]; then
           terraform workspace select prod
-        elif [ "${{ github.ref }}" == "refs/heads/prod" ]; then
+         if [ "${{ github.ref }}" == "refs/heads/feature" ]; then
+          terraform workspace select prod
+        elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
           terraform workspace select prod
         elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
           terraform workspace select dev
