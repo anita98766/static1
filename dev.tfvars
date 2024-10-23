@@ -1,2 +1,3 @@
-instance_type = "t2.micro"
-region        = "us-east-1"
+bucket_name        = "myfirstbucket-dev"
+cloudfront_comment = "CloudFront distribution for development environment"
+environment        = "dev"
