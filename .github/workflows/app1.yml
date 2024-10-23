@@ -3,10 +3,9 @@ name: Terraform CI/CD
 on:
   push:
     branches:
-      - main      # Trigger for production
-      - feature
-      - stage     # Trigger for staging
-      - dev       # Trigger for development
+      - feature     # Trigger for the feature environment
+      - stage       # Trigger for the stage environment
+      - dev         # Trigger for the dev environment
 
 jobs:
   terraform:
@@ -25,31 +24,28 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1  # Adjust according to your region
+        aws-region: us-east-1  # Adjust this region as necessary
 
     - name: Terraform Init
       run: terraform init
 
     - name: Select Terraform Workspace
       run: |
-        if [ "${{ github.ref }}" == "refs/heads/master" ]; then
-          terraform workspace select prod
-         if [ "${{ github.ref }}" == "refs/heads/feature" ]; then
-          terraform workspace select prod
+        if [ "${{ github.ref }}" == "refs/heads/feature" ]; then
+          terraform workspace select feature
         elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
-          terraform workspace select prod
+          terraform workspace select stage
         elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
           terraform workspace select dev
         fi
 
     - name: Terraform Plan
-      run: terraform plan
+      run: terraform plan -var-file="${{ github.ref_name }}.tfvars"
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/prod' || github.ref == 'refs/heads/dev'
-      run: terraform apply -auto-approve
+      if: github.ref == 'refs/heads/feature' || github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/dev'
+      run: terraform apply -auto-approve -var-file="${{ github.ref_name }}.tfvars"
 
-    
     
       
 
