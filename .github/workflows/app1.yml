@@ -1,32 +1,52 @@
-name: Index Change Deployment
+name: Terraform CI/CD
 
 on:
   push:
     branches:
-      - main
-      - feature-1
-    paths:
-      - index.html  # Only trigger when index.yaml changes
+      - main      # Trigger for production
+      - staging   # Trigger for staging
+      - dev       # Trigger for development
 
 jobs:
-  index-deployment:
+  terraform:
+    name: 'Terraform Deploy'
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Configure AWS credentials
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+
     - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v3
+      uses: aws-actions/configure-aws-credentials@v2
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1   # Change the region if necessary
+        aws-region: us-east-1  # Adjust according to your region
 
-    # Step 3: Sync index.yaml file to S3 bucket
-    - name: Sync index.html to S3
-      
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Select Terraform Workspace
       run: |
-        aws s3 cp index.html s3://myfirstbucket5aa/index.html
+        if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          terraform workspace select prod
+        elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+          terraform workspace select staging
+        elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+          terraform workspace select dev
+        fi
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/dev'
+      run: terraform apply -auto-approve
+
+    
+    
+      
+
