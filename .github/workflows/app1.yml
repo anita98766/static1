@@ -31,22 +31,27 @@ jobs:
 
     - name: Select or Create Terraform Workspace
       run: |
-        if [ "${{ github.ref }}" == "refs/heads/feature" ]; then
-          terraform workspace select feature || terraform workspace new feature
-        elif [ "${{ github.ref }}" == "refs/heads/stage" ]; then
+        if [ "${{ github.ref }}" == "refs/heads/stage" ]; then
           terraform workspace select stage || terraform workspace new stage
         elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
           terraform workspace select dev || terraform workspace new dev
         fi
 
     - name: Terraform Plan
-      run: terraform plan -var-file="${{ github.ref_name }}.tfvars"
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/stage" ]; then
+          terraform plan -var-file="staging.tfvars"
+        elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+          terraform plan -var-file="dev.tfvars"
+        elif [ "${{ github.ref }}" == "refs/heads/feature" ]; then
+          echo "No variables file needed for feature branch"
+        fi
 
     - name: Terraform Apply
-      if: github.ref == 'refs/heads/feature' || github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/dev'
-      run: terraform apply -auto-approve -var-file="${{ github.ref_name }}.tfvars"
-
-
-    
-      
-
+      if: github.ref == 'refs/heads/stage' || github.ref == 'refs/heads/dev'
+      run: |
+        if [ "${{ github.ref }}" == "refs/heads/stage" ]; then
+          terraform apply -auto-approve -var-file="staging.tfvars"
+        elif [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+          terraform apply -auto-approve -var-file="dev.tfvars"
+        fi
